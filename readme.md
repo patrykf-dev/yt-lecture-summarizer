@@ -20,10 +20,10 @@ To use the YouTube Lecture Summarizer, follow these steps:
 
 1. Clone this repository to your local machine.
 2. Navigate to the project directory.
-3. Run the main script:
+3. Run the main script, providing the YouTube url to your lecture:
 
 ```commandline
-python main.py
+python main.py "https://youtu.be/EIXhvkOS7k4"
 ```
 
 ## How it works
