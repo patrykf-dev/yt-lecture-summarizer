@@ -1,4 +1,4 @@
-# YouTube Lecture Summarizer
+# YouTube lecture summarizer
 
 This project generates a brief summary of a YouTube video lecture.
 
@@ -6,9 +6,9 @@ This project generates a brief summary of a YouTube video lecture.
 
 Before you begin, ensure you have met the following requirements:
 
-* You have installed [Ollama](https://ollama.ai/) locally on your machine.
-* You have Python 3.7+ installed on your system.
-* You have installed all required packages using the following command:
+* [Ollama](https://ollama.ai/) running with at least one LLM installed (`llama3.2:3b` is recommended)
+* Python 3.7+
+* all required pip packages
 
 ```commandline
 pip install -r requirements.txt 
@@ -26,18 +26,18 @@ To use the YouTube Lecture Summarizer, follow these steps:
 python main.py
 ```
 
-## How It Works
+## How it works
 
 1. The script downloads the audio from the specified YouTube video.
 2. It uses the Whisper model to transcribe the audio to text.
 3. The transcription is divided into smaller chunks (~5000 characters long).
 4. Each chunk is summarized by the model of your choice.
 5. All chunk summaries are joined and shortened once again by the model of your choice.
-6. The summary is presented to the user.
+6. The final summary is presented to you.
 
 ## Costs
 
 All AI models in this project run locally on your machine. This means:
 
-* No API keys or subscriptions are required
-* You can use this tool for free without usage limits
+* No API keys or subscriptions are required.
+* You can use this tool for free without usage limits.
