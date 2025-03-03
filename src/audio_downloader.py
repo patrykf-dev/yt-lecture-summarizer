@@ -4,10 +4,8 @@ import re
 import yt_dlp
 import moviepy
 
-output_dir = "./temp"
 
-
-def download_audio(youtube_url):
+def download_audio(youtube_url, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     download_config = {

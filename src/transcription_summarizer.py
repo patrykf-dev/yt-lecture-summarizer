@@ -2,61 +2,40 @@ import os.path
 
 import requests
 import sys
-import textwrap
 
 
 def summarize(txt_path, output_path):
-    args = {
-        "chunk_size": 5000,
-        "temperature": 0.1,
-        "model": "llama3.2:3b",
-    }
+    chunk_summaries = _generate_chunk_summaries(txt_path, output_path)
 
+    if not chunk_summaries:
+        print("Error: Could not generate chunk summaries.", file=sys.stderr)
+        return
+
+    return _create_final_summary(chunk_summaries, output_path)
+
+
+def _generate_chunk_summaries(txt_path, output_path):
     with open(txt_path, 'r', encoding='utf-8') as f:
         lecture_text = f.read()
-
     total_chars = len(lecture_text)
     print(f"Transcription loaded ({total_chars} characters)")
 
-    chunks = chunk_text(lecture_text, args['chunk_size'], 200)
-    print(f"Split into {len(chunks)} chunks")
-
-    print(f"Generating summaries using Ollama model '{args['model']}'...")
+    chunks = _chunk_text(lecture_text, 5000, 200)
+    print(f"Split transcription into {len(chunks)} chunks")
     chunk_summaries = []
-    for i, chunk in enumerate(chunks):
-        print(f"Processing chunk {i + 1}/{len(chunks)} ({len(chunk)} chars)...")
-        summary = summarize_chunk(chunk, model_name=args['model'], temperature=args['temperature'])
-        if summary:
-            chunk_summaries.append(summary)
-            print(f"✓ Chunk {i + 1} summarized")
-        else:
-            print(f"✗ Failed to summarize chunk {i + 1}")
+    for i, chunk_text in enumerate(chunks):
+        print(f"\tProcessing chunk {i + 1}/{len(chunks)} ({len(chunk_text)} chars)...")
+        chunk_summary = _summarize_chunk(chunk_text)
+        chunk_summaries.append(chunk_summary)
 
-    if not chunk_summaries:
-        print("Error: Could not generate any summaries.", file=sys.stderr)
-        return
+    chunks_path = os.path.join(output_path, "summary_chunks.txt")
+    with open(chunks_path, 'w', encoding='utf-8') as file:
+        file.write("\n\n".join(chunk_summaries))
 
-    print("Creating final summary...")
-    final_summary = create_final_summary(chunk_summaries, model_name=args['model'], temperature=args['temperature'])
-
-    if not final_summary:
-        print("Error: Failed to create final summary.", file=sys.stderr)
-        final_summary = "\n\n".join(chunk_summaries)
-        print("Using individual chunk summaries instead.")
-
-    summary_path = os.path.join(output_path, "summary.txt")
-    with open(summary_path, 'w', encoding='utf-8') as f:
-        f.write(final_summary)
-
-    print(f"\nSummary successfully generated and saved to {summary_path}")
-
-    print("LECTURE SUMMARY" + "=" * 50)
-    wrapped_summary = textwrap.fill(final_summary, width=80)
-    print(wrapped_summary)
-    print("=" * 50)
+    return chunk_summaries
 
 
-def chunk_text(text, chunk_size, overlap):
+def _chunk_text(text, chunk_size, overlap):
     chunks = []
     start = 0
     end = 0
@@ -72,13 +51,12 @@ def chunk_text(text, chunk_size, overlap):
 
         chunk = text[start:end]
         chunks.append(chunk)
-
         start = max(end - overlap, start + 1)
 
     return chunks
 
 
-def summarize_chunk(chunk, model_name="llama3:latest", temperature=0.1):
+def _summarize_chunk(chunk):
     prompt = f"""
     Below is a portion of a lecture transcript. Please provide a concise summary that captures the key points, main ideas, and important details from this section. Focus on extracting the most valuable information.
 
@@ -88,10 +66,11 @@ def summarize_chunk(chunk, model_name="llama3:latest", temperature=0.1):
     SUMMARY:
     """
 
-    return _call_ollama(model_name, prompt, temperature)
+    return _call_ollama(prompt)
 
 
-def create_final_summary(chunk_summaries, model_name, temperature):
+def _create_final_summary(chunk_summaries, output_path):
+    print("Creating final summary...")
     combined_summaries = "\n\n".join(chunk_summaries)
 
     prompt = f"""
@@ -103,23 +82,29 @@ def create_final_summary(chunk_summaries, model_name, temperature):
     FINAL LECTURE SUMMARY:
     """
 
-    return _call_ollama(model_name, prompt, temperature)
+    final_summary = _call_ollama(prompt)
+
+    summary_path = os.path.join(output_path, "summary.txt")
+    with open(summary_path, 'w', encoding='utf-8') as f:
+        f.write(final_summary)
+
+    return final_summary
 
 
-def _call_ollama(model_name, prompt, temperature):
+def _call_ollama(prompt):
     try:
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": model_name,
+                "model": "llama3.2:3b",
                 "prompt": prompt,
-                "temperature": temperature,
+                "temperature": 0.1,
                 "stream": False
             },
             timeout=180
         )
         response.raise_for_status()
         return response.json()["response"].strip()
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(f"Error communicating with Ollama: {e}", file=sys.stderr)
         return ""

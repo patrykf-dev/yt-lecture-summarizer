@@ -1,10 +1,7 @@
-import os
-
-import torch
-import whisper
-
-
 def transcribe(model_size, audio_path, output_dir):
+    import whisper
+    import os
+
     """
     model_size options: "tiny", "base", "small", "medium", "large"
     """
@@ -25,6 +22,8 @@ def transcribe(model_size, audio_path, output_dir):
 
 
 def _estimate_time(file_path, model_size):
+    import torch
+
     duration_seconds = 3386  # TODO: read real mp3 duration
 
     time_factors = {
