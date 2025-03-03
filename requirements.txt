@@ -1,0 +1,5 @@
+openai-whisper
+torch
+yt_dlp
+moviepy
+requests
