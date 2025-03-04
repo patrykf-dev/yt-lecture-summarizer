@@ -1,20 +1,28 @@
 # YouTube lecture summarizer
 
-This project generates a brief summary of a YouTube video lecture.
+This tool provides summaries of YouTube video lectures. While optimized for educational content, it can be adapted for
+other video types. It was created for research purposes to offer a free and locally hosted alternative to existing
+services.
 
 ## Prerequisites
 
 Before you begin, ensure you have installed all listed components.
 
 * [Ollama](https://ollama.ai/) running with at least one LLM installed (`llama3.2:3b` is recommended).
+
 ```commandline
 ollama list
 ```
-* [FFmpeg](https://ffmpeg.org/download.html) (required as [Whisper dependency](https://github.com/openai/whisper?tab=readme-ov-file#setup))
+
+* [FFmpeg](https://ffmpeg.org/download.html) (required
+  as [Whisper dependency](https://github.com/openai/whisper?tab=readme-ov-file#setup))
+
 ```commandline
 ffmpeg --version
 ```
+
 * [Python 3.7+](https://www.python.org/downloads/) with required packages listed in [requirements.txt](requirements.txt)
+
 ```commandline
 python --version
 pip list
@@ -25,24 +33,30 @@ pip list
 To use the YouTube Lecture Summarizer, follow these steps:
 
 1. Clone this repository to your local machine.
+
 ```commandline
 git clone https://github.com/patrykf-dev/yt-lecture-summarizer
 ```
+
 2. Navigate to the project directory.
+
 ```commandline
 cd yt-lecture-summarizer
 ```
+
 3. [optional] Make sure you have all required packages installed
+
 ```commandline
 pip install -r requirements.txt 
 ```
+
 4. Run the main script, providing the YouTube url to your lecture:
 
 ```commandline
 python src/main.py "https://youtu.be/EIXhvkOS7k4"
 ```
 
-If you need to configure how the script works, feel free to modify the [config.json](config.json) file contents. 
+If you need to configure how the script works, feel free to modify the [config.json](config.json) file contents.
 
 ## How it works
 
