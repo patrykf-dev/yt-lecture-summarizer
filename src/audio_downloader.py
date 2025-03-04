@@ -19,6 +19,8 @@ def download_audio(youtube_url):
         'extract_flat': 'in_playlist',
     }
 
+    print(f"Starting download {youtube_url}")
+
     with yt_dlp.YoutubeDL(download_config) as ydl:
         info = ydl.extract_info(youtube_url, download=True)
         title = info.get('title', 'Unknown Title')

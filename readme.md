@@ -4,11 +4,10 @@ This project generates a brief summary of a YouTube video lecture.
 
 ## Prerequisites
 
-Before you begin, ensure you have met the following requirements:
+Before you begin, ensure you have installed all required components:
 
 * [Ollama](https://ollama.ai/) running with at least one LLM installed (`llama3.2:3b` is recommended)
-* Python 3.7+
-* all required pip packages
+* [Python 3.7+](https://www.python.org/downloads/) with required pip packages:
 
 ```commandline
 pip install -r requirements.txt 
@@ -19,12 +18,20 @@ pip install -r requirements.txt
 To use the YouTube Lecture Summarizer, follow these steps:
 
 1. Clone this repository to your local machine.
+```commandline
+git clone https://github.com/patrykf-dev/yt-lecture-summarizer
+```
 2. Navigate to the project directory.
+```commandline
+cd yt-lecture-summarizer/src
+```
 3. Run the main script, providing the YouTube url to your lecture:
 
 ```commandline
 python main.py "https://youtu.be/EIXhvkOS7k4"
 ```
+
+If you need to configure how the script works, feel free to modify the [config.json](config.json) file contents. 
 
 ## How it works
 
