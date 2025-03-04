@@ -1,4 +1,5 @@
-from src.config import Config
+from config import Config
+from logger import log
 
 
 def transcribe(audio_path, output_dir):
@@ -6,40 +7,20 @@ def transcribe(audio_path, output_dir):
     import os
 
     model_size = Config.get("whisper_model")
-    print(f"Starting to transcribe, estimated duration is {_estimate_time(audio_path, model_size)}")
+    log(f"Starting to transcribe, it can take a few minutes depending on hardware, model size and audio length...")
 
     try:
         whisper_model = whisper.load_model(model_size)
-        print(f"Whisper model loaded successfully")
+        log(f"Whisper model ({model_size}) loaded successfully")
     except Exception as e:
-        print(f"Failed to load Whisper model: {e}")
+        log(f"Failed to load Whisper model: {e}")
         raise
 
-    result = whisper_model.transcribe(audio_path)
+    whisper_result = whisper_model.transcribe(audio_path)
+
     txt_path = os.path.join(output_dir, "transcription.txt")
     with open(txt_path, "w", encoding="utf8") as text_file:
-        text_file.write(result["text"])
+        text_file.write(whisper_result["text"])
+    log(f"Successfully saved transcription in {txt_path}")
+
     return txt_path
-
-
-def _estimate_time(file_path, model_size):
-    import torch
-
-    duration_seconds = 3386  # TODO: read real mp3 duration
-
-    time_factors = {
-        "tiny": 0.1,
-        "base": 0.2,
-        "small": 0.5,
-        "medium": 1.0,
-        "large": 2.0
-    }
-    time_factor = time_factors.get(model_size, 0.5)
-
-    if torch.cuda.is_available():
-        time_factor = time_factor * 0.2
-
-    estimated_seconds = duration_seconds * time_factor
-
-    minutes, seconds = divmod(int(estimated_seconds), 60)
-    return f"{minutes:02d}:{seconds:02d}"

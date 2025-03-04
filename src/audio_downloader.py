@@ -3,6 +3,7 @@ import re
 
 import yt_dlp
 import moviepy
+from logger import log
 
 
 def download_audio(youtube_url):
@@ -14,12 +15,11 @@ def download_audio(youtube_url):
         'format': 'bestaudio/best',
         'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
         'noplaylist': True,
-        'quiet': False,
-        'no_warnings': False,
+        'quiet': True,
         'extract_flat': 'in_playlist',
     }
 
-    print(f"Starting download {youtube_url}")
+    log(f"Starting download {youtube_url}")
 
     with yt_dlp.YoutubeDL(download_config) as ydl:
         info = ydl.extract_info(youtube_url, download=True)
@@ -37,7 +37,10 @@ def download_audio(youtube_url):
         audio_clip.close()
         os.remove(downloaded_file)
 
-    return os.path.abspath(mp3_path)
+    mp3_abspath = os.path.abspath(mp3_path)
+    log(f"Successfully saved audio in {mp3_abspath}")
+
+    return mp3_abspath
 
 
 def _make_string_safe(input_string):

@@ -3,14 +3,15 @@ import os.path
 import requests
 import sys
 
-from src.config import Config
+from logger import log
+from config import Config
 
 
 def summarize(txt_path, output_path):
     chunk_summaries = _generate_chunk_summaries(txt_path, output_path)
 
     if not chunk_summaries:
-        print("Error: Could not generate chunk summaries.", file=sys.stderr)
+        log("Error: Could not generate chunk summaries.")
         return
 
     return _create_final_summary(chunk_summaries, output_path)
@@ -20,19 +21,20 @@ def _generate_chunk_summaries(txt_path, output_path):
     with open(txt_path, 'r', encoding='utf-8') as f:
         lecture_text = f.read()
     total_chars = len(lecture_text)
-    print(f"Transcription loaded ({total_chars} characters)")
+    log(f"Transcription loaded ({total_chars} characters)")
 
     chunks = _chunk_text(lecture_text, Config.get("summary_chunk_length"), Config.get("summary_chunk_overlap"))
-    print(f"Split transcription into {len(chunks)} chunks")
+    log(f"Split transcription into {len(chunks)} chunks")
     chunk_summaries = []
     for i, chunk_text in enumerate(chunks):
-        print(f"\tProcessing chunk {i + 1}/{len(chunks)} ({len(chunk_text)} chars)...")
+        log(f"\tProcessing chunk {i + 1}/{len(chunks)} ({len(chunk_text)} chars)...")
         chunk_summary = _summarize_chunk(chunk_text)
         chunk_summaries.append(chunk_summary)
 
     chunks_path = os.path.join(output_path, "summary_chunks.txt")
     with open(chunks_path, 'w', encoding='utf-8') as file:
         file.write("\n\n".join(chunk_summaries))
+    log(f"Successfully saved summary chunks in {chunks_path}")
 
     return chunk_summaries
 
@@ -70,7 +72,7 @@ def _summarize_chunk(chunk):
 
 
 def _create_final_summary(chunk_summaries, output_path):
-    print("Creating final summary...")
+    log("Creating final summary...")
     combined_summaries = "\n\n".join(chunk_summaries)
 
     prompt = f"""
@@ -85,6 +87,7 @@ def _create_final_summary(chunk_summaries, output_path):
     summary_path = os.path.join(output_path, "summary.txt")
     with open(summary_path, 'w', encoding='utf-8') as f:
         f.write(final_summary)
+    log(f"Successfully saved full summary in {summary_path}")
 
     return final_summary
 
@@ -106,6 +109,6 @@ def _call_ollama(prompt):
         response.raise_for_status()
         response_text = response.json()["response"].strip()
     except Exception as e:
-        print(f"Error communicating with Ollama: {e}", file=sys.stderr)
+        log(f"Error communicating with Ollama: {e}")
 
     return response_text
