@@ -3,6 +3,8 @@ import os.path
 import requests
 import sys
 
+from src.config import Config
+
 
 def summarize(txt_path, output_path):
     chunk_summaries = _generate_chunk_summaries(txt_path, output_path)
@@ -20,7 +22,7 @@ def _generate_chunk_summaries(txt_path, output_path):
     total_chars = len(lecture_text)
     print(f"Transcription loaded ({total_chars} characters)")
 
-    chunks = _chunk_text(lecture_text, 5000, 200)
+    chunks = _chunk_text(lecture_text, Config.get("summary_chunk_length"), Config.get("summary_chunk_overlap"))
     print(f"Split transcription into {len(chunks)} chunks")
     chunk_summaries = []
     for i, chunk_text in enumerate(chunks):
@@ -58,12 +60,10 @@ def _chunk_text(text, chunk_size, overlap):
 
 def _summarize_chunk(chunk):
     prompt = f"""
-    Below is a portion of a lecture transcript. Please provide a concise summary that captures the key points, main ideas, and important details from this section. Focus on extracting the most valuable information.
+    {Config.get('chunk_summary_prompt')}
 
     LECTURE EXCERPT:
     {chunk}
-
-    SUMMARY:
     """
 
     return _call_ollama(prompt)
@@ -74,12 +74,10 @@ def _create_final_summary(chunk_summaries, output_path):
     combined_summaries = "\n\n".join(chunk_summaries)
 
     prompt = f"""
-    Below are summaries of different sections of a long lecture. Please create a cohesive, well-organized final summary that captures the key points and themes of the entire lecture based on these section summaries. The final summary should be concise yet comprehensive.
+    {Config.get('final_summary_prompt')}
 
     SECTION SUMMARIES:
     {combined_summaries}
-
-    FINAL LECTURE SUMMARY:
     """
 
     final_summary = _call_ollama(prompt)
@@ -92,19 +90,22 @@ def _create_final_summary(chunk_summaries, output_path):
 
 
 def _call_ollama(prompt):
+    response_text = ""
+
     try:
         response = requests.post(
-            "http://localhost:11434/api/generate",
+            f"{Config.get('ollama_url')}/api/generate",
             json={
-                "model": "llama3.2:3b",
+                "model": Config.get("ollama_model"),
                 "prompt": prompt,
-                "temperature": 0.1,
+                "temperature": Config.get("ollama_model_temperature"),
                 "stream": False
             },
-            timeout=180
+            timeout=Config.get("ollama_request_timeout")
         )
         response.raise_for_status()
-        return response.json()["response"].strip()
+        response_text = response.json()["response"].strip()
     except Exception as e:
         print(f"Error communicating with Ollama: {e}", file=sys.stderr)
-        return ""
+
+    return response_text

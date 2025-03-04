@@ -1,0 +1,11 @@
+{
+  "whisper_model": "tiny",
+  "ollama_model": "llama3.2:3b",
+  "ollama_url": "http://localhost:11434",
+  "ollama_request_timeout": 180,
+  "ollama_model_temperature": 0.1,
+  "summary_chunk_length": 5000,
+  "summary_chunk_overlap": 200,
+  "chunk_summary_prompt": "Below is a portion of a lecture transcript. Please provide a concise summary that captures the key points, main ideas, and important details from this section. Focus on extracting the most valuable information.",
+  "final_summary_prompt": "Below are summaries of different sections of a long lecture. Please create a cohesive, well-organized final summary that captures the key points and themes of the entire lecture based on these section summaries. The final summary should be concise yet comprehensive."
+}

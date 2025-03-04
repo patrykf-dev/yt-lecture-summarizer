@@ -1,10 +1,11 @@
-def transcribe(model_size, audio_path, output_dir):
+from src.config import Config
+
+
+def transcribe(audio_path, output_dir):
     import whisper
     import os
 
-    """
-    model_size options: "tiny", "base", "small", "medium", "large"
-    """
+    model_size = Config.get("whisper_model")
     print(f"Starting to transcribe, estimated duration is {_estimate_time(audio_path, model_size)}")
 
     try:
